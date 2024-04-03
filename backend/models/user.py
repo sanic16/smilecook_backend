@@ -10,6 +10,7 @@ class User(db.Model):
     password = db.Column(db.String(200))
     is_active = db.Column(db.Boolean(), default=False)
     is_admin = db.Column(db.Boolean(), default=False)
+    bio = db.Column(db.Text)
     created_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now())
     updated_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -22,6 +23,12 @@ class User(db.Model):
     @classmethod
     def get_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
+    
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter_by(id=id).first()
+    
+    
     
     def save(self):
         db.session.add(self)
