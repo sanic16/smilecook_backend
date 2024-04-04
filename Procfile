@@ -1,1 +1,1 @@
-web: gunicorn backend.app:app --chdir backend --log-file=-
+web: gunicorn app:app --log-file=-
