@@ -8,7 +8,8 @@ from config import Config
 from extensions import db, jwt
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
-from resources.user import UserListResource, UserResource, MeResource, UserRecipeListResource
+from resources.user import (UserListResource, UserResource, MeResource, UserRecipeListResource, 
+                            UserAvatarResource)
 
 from resources.token import TokenResource, RefreshResource, RevokeResource
 
@@ -41,6 +42,7 @@ def register_resources(app):
     api.add_resource(RecipePublishResource, '/recipes/<int:recipe_id>/publish')
 
     api.add_resource(UserListResource, '/users')
+    api.add_resource(UserAvatarResource, '/users/avatar')    
     api.add_resource(UserResource, '/users/<string:username>')
     api.add_resource(MeResource, '/me')
     api.add_resource(UserRecipeListResource, '/users/<string:username>/recipes')

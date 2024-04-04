@@ -3,7 +3,7 @@ from flask_restful import Resource
 from http import HTTPStatus
 from models.user import User
 from models.recipe import Recipe
-from utils import hash_password
+from utils import hash_password, upload_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from schemas.user import UserSchema
 from schemas.recipe import RecipeSchema
@@ -92,4 +92,28 @@ class UserRecipeListResource(Resource):
 
         return recipe_list_schema.dump(recipes), HTTPStatus.OK
 
+class UserAvatarResource(Resource):
+    @jwt_required()
+    def post(self):
+        if 'avatar' not in request.files:
+            return {'message': 'Not a valid image'}, HTTPStatus.BAD_REQUEST
 
+        avatar = request.files['avatar']
+        
+        # accessing file metadata
+        filename = avatar.filename
+        content_type = avatar.content_type
+        content_length = avatar.content_length
+
+        if content_type not in ['image/jpeg', 'image/png']:
+            return {'message': 'Only JPEG and PNG images are allowed'}, HTTPStatus.BAD_REQUEST 
+        
+        user = User.get_by_id(id=get_jwt_identity())
+        
+        print(f'filename: {filename}')
+        print(f'content_type: {content_type}')
+        print(f'content_length: {content_length}')
+
+        upload_file(file=avatar, object_name=f'avatars/{filename}')
+
+        return {}, HTTPStatus.OK
