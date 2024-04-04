@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import os
 from flask import Flask
 from flask_migrate import Migrate
 from flask_restful import Api
@@ -54,5 +55,5 @@ def register_resources(app):
 app = create_app()
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=os.environ.get('PORT') or 5000)
 
