@@ -51,7 +51,8 @@ def register_resources(app):
     api.add_resource(RefreshResource, '/refresh')
     api.add_resource(RevokeResource, '/revoke')
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     app.run()
 
