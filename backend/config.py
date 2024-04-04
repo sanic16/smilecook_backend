@@ -16,6 +16,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
     JWT_ERROR_MESSAGE_KEY = 'message'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
-    
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    TIMEZONE = 'America/Guatemala'
 
     

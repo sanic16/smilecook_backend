@@ -8,9 +8,11 @@ from config import Config
 from extensions import db, jwt
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
-from resources.user import UserListResource, UserResource, MeResource
+from resources.user import UserListResource, UserResource, MeResource, UserRecipeListResource
 
-from resources.token import TokenResource
+from resources.token import TokenResource, RefreshResource, RevokeResource
+
+from models.token import TokenBlocklist
 
 def create_app():
     app = Flask(__name__)
@@ -23,6 +25,14 @@ def register_extensions(app):
     db.init_app(app=app)
     jwt.init_app(app=app)
     migrate = Migrate(app=app, db=db)
+    
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload: dict) -> bool:
+        jti = jwt_payload['jti']
+        token = TokenBlocklist.query.filter_by(jti=jti).scalar()
+
+        return token is not None
+
 
 def register_resources(app):
     api = Api(app=app)
@@ -33,8 +43,11 @@ def register_resources(app):
     api.add_resource(UserListResource, '/users')
     api.add_resource(UserResource, '/users/<string:username>')
     api.add_resource(MeResource, '/me')
+    api.add_resource(UserRecipeListResource, '/users/<string:username>/recipes')
 
     api.add_resource(TokenResource, '/token')
+    api.add_resource(RefreshResource, '/refresh')
+    api.add_resource(RevokeResource, '/revoke')
 
 if __name__ == '__main__':
     app = create_app()

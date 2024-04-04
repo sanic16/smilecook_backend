@@ -1,4 +1,6 @@
 from extensions import db
+from datetime import datetime
+import pytz
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -11,8 +13,9 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), default=False)
     is_admin = db.Column(db.Boolean(), default=False)
     bio = db.Column(db.Text)
-    created_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now(), onupdate=db.func.now())
+    avatar = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime(), nullable=False, default=datetime.now(pytz.timezone('America/Guatemala')))
+    updated_at = db.Column(db.DateTime(), nullable=False, default=datetime.now(pytz.timezone('America/Guatemala')), onupdate=datetime.now(pytz.timezone('America/Guatemala')))
 
     recipes = db.relationship('Recipe', backref='user')
 
