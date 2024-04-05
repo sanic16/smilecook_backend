@@ -3,7 +3,7 @@ from flask_restful import Resource
 from http import HTTPStatus
 from models.user import User
 from models.recipe import Recipe
-from utils import generate_presigned_url, get_object_url
+from utils import delete_object, generate_update_presigned_url, get_object_url
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from schemas.user import UserSchema
 from schemas.recipe import RecipeSchema
@@ -92,35 +92,66 @@ class UserRecipeListResource(Resource):
 
         return recipe_list_schema.dump(recipes), HTTPStatus.OK
 
-class UserAvatarUploadResource(Resource):
+# class UserAvatarResource(Resource):
+#     @jwt_required()
+#     def post(self):
+#         if 'avatar' not in request.files:
+#             return {'message': 'Not a valid image'}, HTTPStatus.BAD_REQUEST
+
+#         avatar = request.files['avatar']
+        
+#         # accessing file metadata
+#         filename = avatar.filename
+#         content_type = avatar.content_type
+#         content_length = avatar.content_length
+
+#         if content_type not in ['image/jpeg', 'image/png']:
+#             return {'message': 'Only JPEG and PNG images are allowed'}, HTTPStatus.BAD_REQUEST 
+        
+#         user = User.get_by_id(id=get_jwt_identity())
+        
+#         print(f'filename: {filename}')
+#         print(f'content_type: {content_type}')
+#         print(f'content_length: {content_length}')
+
+#         upload_file(file=avatar, object_name=f'avatars/{filename}')
+
+#         return {}, HTTPStatus.OK
+    
+class UserAvatarResource(Resource):
     @jwt_required()
     def put(self):
-        
-        user = User.get_by_id(id=get_jwt_identity())
+        current_user = get_jwt_identity()
 
-        if user.avatar_image:
-            # user.avatar_image format: https://{bucket_name}.s3.amazonaws.com/uploads_avatar/{object_key}
-            # return uplodas_avatar/{object_key}
-            object_key_index = user.avatar_image.find('uploads_avatar')
-            object_key = user.avatar_image[object_key_index:]
-            res = generate_presigned_url(operation='delete_and_upload', object_key=object_key)
-            if not res:
-                return {'message': 'Error occurred while uploading image'}, HTTPStatus.INTERNAL_SERVER_ERROR
+        user = User.get_by_id(id=current_user)
+
+        if(user.avatar_image):
+            delete_object(object_key=user.avatar_image)
+            user.avatar_image = None
+            user.save()
+            aws = generate_update_presigned_url(resource='user', expiration=60)
+            if not aws:
+                return {'message': 'Error generating presigned URL'}, HTTPStatus.INTERNAL_SERVER_ERROR
             
-            object_key, presigned_url = res
-            
-            image = get_object_url(bucket_name='flask-react-gt-aws-bucket', object_key=object_key)
-            user.avatar_image = image 
+            user.avatar_temporary = aws[0]
+            user.save()
+            return {'presigned_url': aws[1]}, HTTPStatus.OK
         else:
-            res = generate_presigned_url(operation='upload')
-            if not res:
-                return {'message': 'Error occurred while uploading image'}, HTTPStatus.INTERNAL_SERVER_ERROR
-           
-            object_key, presigned_url = res
+            aws = generate_update_presigned_url(resource='user', expiration=60)
+            if not aws:
+                return {'message': 'Error generating presigned URL'}, HTTPStatus.INTERNAL_SERVER_ERROR
+            user.avatar_temporary = aws[0]
+            user.save()
+            return {'presigned_url': aws[1]}, HTTPStatus.OK
+    
+    @jwt_required()
+    def post(self):
+        current_user = get_jwt_identity()
 
-            user.avatar_image = get_object_url(bucket_name='flask-react-gt-aws-bucket', object_key=object_key) 
-
+        user = User.get_by_id(id=current_user)
+        user.avatar_image = user.avatar_temporary
+        user.avatar_temporary = None
         user.save()
-        
-
-        return {'presigned_url': presigned_url}, HTTPStatus.OK
+        return {}, HTTPStatus.NO_CONTENT
+    
+    

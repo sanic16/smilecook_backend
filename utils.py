@@ -18,29 +18,33 @@ s3_client = boto3.client(
     region_name='us-east-1'
 ) 
 
-def generate_presigned_url(operation, object_key=None, expiration=30, resource='user'):
-    s3_client = boto3.client(
-        's3',
-        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
-        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-        region_name='us-east-1'
-    )
-    BUCKET_NAME = 'flask-react-gt-aws-bucket'
 
 
-    if(operation == 'delete_and_upload'):
-        try:
-            res = s3_client.delete_object(Bucket=BUCKET_NAME, Key=object_key)
-           
-        except Exception as e:
-           
-            return False
+
+def delete_object(object_key, resource='user'):
+    print('Debugging')
+    try:
+        if resource == 'user':
+            print(f'uploads_avatar/{object_key}')
+            return s3_client.delete_object(
+                Bucket=BUCKET_NAME,
+                Key=f'{object_key}'
+            )
+        elif resource == 'recipe':
+            return s3_client.delete_object(
+                Bucket=BUCKET_NAME,
+                Key=f'{object_key}'
+            )
         
+    except Exception as e:
+        print(e)
+        return False
+
+def generate_update_presigned_url(resource, expiration=60):
     if resource == 'user':
         new_object_key = f'uploads_avatar/{uuid.uuid4()}.jpeg' 
     elif resource == 'recipe':
         new_object_key = f'uploads_cover_image/{uuid.uuid4()}.jpeg'
-
  
     try:
         response = s3_client.generate_presigned_url(
@@ -56,9 +60,22 @@ def generate_presigned_url(operation, object_key=None, expiration=30, resource='
     except Exception as e:
         return False
     
-    
     return  new_object_key, response
 
+def generate_presigned_url(object_key):
+    try:
+        response = s3_client.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': BUCKET_NAME,
+                'Key': object_key
+            },
+            ExpiresIn=3600
+        )
+    except Exception as e:
+        return False
+
+    return response
 
 def get_object_url(bucket_name, object_key):
     return f'https://{bucket_name}.s3.amazonaws.com/{object_key}'
