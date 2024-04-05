@@ -6,7 +6,11 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 from utils import check_password
 from models.user import User
 from models.token import TokenBlocklist
+
+from schemas.user import UserSchema
 import datetime
+
+user_schema = UserSchema(exclude=['email', 'created_at', 'updated_at', 'bio', 'id'])
 
 class TokenResource(Resource):
 
@@ -29,7 +33,8 @@ class TokenResource(Resource):
             'access_token': access_token,
             'access_token_expires_in': int((datetime.datetime.now() + datetime.timedelta(minutes=15)).timestamp()),
             'refresh_token': refresh_token,
-            'refresh_token_expires_in': int((datetime.datetime.now() + datetime.timedelta(days=30)).timestamp())
+            'refresh_token_expires_in': int((datetime.datetime.now() + datetime.timedelta(days=30)).timestamp()),
+            'user': user_schema.dump(user)
         }, HTTPStatus.OK
     
 class RefreshResource(Resource):
