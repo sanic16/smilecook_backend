@@ -13,7 +13,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), default=False)
     is_admin = db.Column(db.Boolean(), default=False)
     bio = db.Column(db.Text)
-    avatar = db.Column(db.String(100))
+    avatar_image = db.Column(db.String(150), default=None)
     created_at = db.Column(db.DateTime(), nullable=False, default=datetime.now(pytz.timezone('America/Guatemala')))
     updated_at = db.Column(db.DateTime(), nullable=False, default=datetime.now(pytz.timezone('America/Guatemala')), onupdate=datetime.now(pytz.timezone('America/Guatemala')))
 
