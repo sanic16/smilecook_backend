@@ -25,4 +25,4 @@ class UserSchema(Schema):
         if user.avatar_image:
             return generate_presigned_url(user.avatar_image)
         else:
-            return None
+            return generate_presigned_url('uploads_avatar/default.svg')

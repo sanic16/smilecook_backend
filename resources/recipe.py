@@ -5,6 +5,7 @@ from models.recipe import Recipe
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from schemas.recipe import RecipeSchema
 from marshmallow import ValidationError
+from utils import generate_update_presigned_url, delete_object
 
 recipe_schema = RecipeSchema()
 recipe_list_schema = RecipeSchema(many=True)
@@ -46,7 +47,7 @@ class RecipeResource(Resource):
         if recipe.is_publish == False and recipe.user_id != current_user:
             return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
 
-        return recipe.data(), HTTPStatus.OK
+        return recipe_schema.dump(recipe), HTTPStatus.OK
      
         
     @jwt_required()
@@ -156,4 +157,37 @@ class RecipePublishResource(Resource):
 
         return {}, HTTPStatus.NO_CONTENT
 
+class RecipeCoverResource(Resource):
+
+    @jwt_required()
+    def put(self, recipe_id):
+        recipe = Recipe.get_by_id(recipe_id=recipe_id)
+
+        if(recipe.cover_image):
+            delete_object(object_key=recipe.cover_image)
+            recipe.cover_image = None
+            recipe.save()
+            aws = generate_update_presigned_url(resource='recipe', expiration=60)
+            if not aws:
+                return {'message': 'Error generating presigned URL'}, HTTPStatus.INTERNAL_SERVER_ERROR
+            
+            recipe.cover_image_temporary = aws[0]
+            recipe.save()
+            return {'presigned_url': aws[1]}, HTTPStatus.OK
+        else:
+            aws = generate_update_presigned_url(resource='recipe', expiration=60)
+            if not aws:
+                return {'message': 'Error generating presigned URL'}, HTTPStatus.INTERNAL_SERVER_ERROR
+            recipe.cover_image_temporary = aws[0]
+            recipe.save()
+            return {'presigned_url': aws[1]}, HTTPStatus.OK
+    
+    @jwt_required()
+    def post(self, recipe_id):        
+        recipe = Recipe.get_by_id(recipe_id=recipe_id)
+        recipe.cover_image = recipe.cover_image_temporary
+        recipe.cover_image_temporary = None
+        recipe.save()
+        
+        return {}, HTTPStatus.NO_CONTENT
     

@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, post_dump, validate, ValidationError, validates
 from schemas.user import UserSchema
+from utils import generate_presigned_url
 
 def validate_num_of_servings(n):
         if n < 1:
@@ -19,6 +20,8 @@ class RecipeSchema(Schema):
     num_of_servings = fields.Integer(validate=validate_num_of_servings)
     cook_time = fields.Integer()
     is_publish = fields.Boolean(dump_only=True)
+    cover_image = fields.Method(serialize='get_recipe_cover_url')
+
     author = fields.Nested(UserSchema, attribute='user', dump_only=True, only=['id', 'username'])
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
@@ -29,12 +32,21 @@ class RecipeSchema(Schema):
               raise ValidationError('Cook time must be greater than 0.')
          if value > 300:
               raise ValidationError('Cook time must not be greater than 300.')
+     
+    def get_recipe_cover_url(self, recipe):
          
+          if recipe.cover_image:
+               return generate_presigned_url(recipe.cover_image)
+          else:
+               return generate_presigned_url('uploads_cover_image/default.jpg')
+          
     @post_dump(pass_many=True)
     def wrap(self, data, many, **kwargs):
          if many:
               return {'data': data}
          return data    
+
+     
 
 
 

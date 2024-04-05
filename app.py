@@ -9,7 +9,8 @@ from flask_cors import CORS
 from config import Config
 from extensions import db, jwt
 
-from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
+from resources.recipe import (RecipeListResource, RecipeResource, RecipePublishResource,
+                              RecipeCoverResource)
 from resources.user import (UserListResource, UserResource, MeResource, UserRecipeListResource, 
                             UserAvatarResource)
 
@@ -49,6 +50,7 @@ def register_resources(app):
     api.add_resource(UserResource, '/users/<string:username>')
     api.add_resource(MeResource, '/me')
     api.add_resource(UserRecipeListResource, '/users/<string:username>/recipes')
+    api.add_resource(RecipeCoverResource, '/recipes/<int:recipe_id>/cover')
 
     api.add_resource(TokenResource, '/token')
     api.add_resource(RefreshResource, '/refresh')

@@ -18,7 +18,9 @@ class Recipe(db.Model):
     cook_time = db.Column(db.Integer)
     directions = db.Column(db.JSON)
     ingredients = db.Column(db.JSON)
-
+    cover_image = db.Column(db.String(150))
+    cover_image_temporary = db.Column(db.String(150))
+    popularity = db.Column(db.Integer, default=0)
     is_publish = db.Column(db.Boolean(), default=False)
 
     created_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now())
