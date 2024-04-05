@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_cors import CORS 
 from config import Config
-from extensions import db, jwt, cors
+from extensions import db, jwt
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
 from resources.user import (UserListResource, UserResource, MeResource, UserRecipeListResource, 
