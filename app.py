@@ -5,6 +5,7 @@ import os
 from flask import Flask
 from flask_migrate import Migrate
 from flask_restful import Api
+from flask_cors import CORS 
 from config import Config
 from extensions import db, jwt, cors
 
@@ -26,7 +27,7 @@ def create_app():
 def register_extensions(app):
     db.init_app(app=app)
     jwt.init_app(app=app)
-    cors.init_app(app=app)
+    cors = CORS(app=app, resources={r"/*": {"origins": "*"}})
     migrate = Migrate(app=app, db=db)
     
     @jwt.token_in_blocklist_loader
