@@ -40,7 +40,7 @@ def delete_object(object_key, resource='user'):
         print(e)
         return False
 
-def generate_update_presigned_url(resource, expiration=60):
+def generate_update_presigned_url(resource, expiration=60, content_type='image/jpeg'):
     if resource == 'user':
         new_object_key = f'uploads_avatar/{uuid.uuid4()}.jpeg' 
     elif resource == 'recipe':
@@ -52,7 +52,7 @@ def generate_update_presigned_url(resource, expiration=60):
             Params={
                 'Bucket': BUCKET_NAME,
                 'Key': new_object_key,
-                'ContentType': 'image/jpeg'
+                'ContentType': content_type
             },
             HttpMethod='PUT',
             ExpiresIn=expiration
