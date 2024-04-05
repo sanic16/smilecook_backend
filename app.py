@@ -6,7 +6,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_restful import Api
 from config import Config
-from extensions import db, jwt
+from extensions import db, jwt, cors
 
 from resources.recipe import RecipeListResource, RecipeResource, RecipePublishResource
 from resources.user import (UserListResource, UserResource, MeResource, UserRecipeListResource, 
@@ -26,6 +26,7 @@ def create_app():
 def register_extensions(app):
     db.init_app(app=app)
     jwt.init_app(app=app)
+    cors.init_app(app=app)
     migrate = Migrate(app=app, db=db)
     
     @jwt.token_in_blocklist_loader
