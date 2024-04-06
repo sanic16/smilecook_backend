@@ -12,7 +12,7 @@ from extensions import db, jwt
 from resources.recipe import (RecipeListResource, RecipeResource, RecipePublishResource,
                               RecipeCoverResource)
 from resources.user import (UserListResource, UserResource, MeResource, UserRecipeListResource, 
-                            UserAvatarResource)
+                            UserAvatarResource, MeRecipeListResource)
 
 from resources.token import TokenResource, RefreshResource, RevokeResource
 
@@ -49,6 +49,7 @@ def register_resources(app):
     api.add_resource(UserAvatarResource, '/users/avatar')    
     api.add_resource(UserResource, '/users/<string:username>')
     api.add_resource(MeResource, '/me')
+    api.add_resource(MeRecipeListResource, '/me/recipes')
     api.add_resource(UserRecipeListResource, '/users/<string:username>/recipes')
     api.add_resource(RecipeCoverResource, '/recipes/<int:recipe_id>/cover')
 

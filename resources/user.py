@@ -92,6 +92,12 @@ class UserRecipeListResource(Resource):
 
         return recipe_list_schema.dump(recipes), HTTPStatus.OK
 
+class MeRecipeListResource(Resource):
+    @jwt_required(fresh=False)
+    def get(self):
+        recipes = Recipe.get_all_by_user(user_id=get_jwt_identity(), visibility='all')
+        return recipe_list_schema.dump(recipes), HTTPStatus.OK
+
 # class UserAvatarResource(Resource):
 #     @jwt_required()
 #     def post(self):
