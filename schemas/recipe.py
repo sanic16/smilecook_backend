@@ -21,7 +21,7 @@ class RecipeSchema(Schema):
     cook_time = fields.Integer()
     is_publish = fields.Boolean(dump_only=True)
     cover_image = fields.Method(serialize='get_recipe_cover_url')
-    popularity = fields.Integer(dump_only=True)
+    popularity = fields.Integer(dump_only=True, default=0)
 
     author = fields.Nested(UserSchema, attribute='user', dump_only=True, only=['id', 'username'])
     created_at = fields.DateTime(dump_only=True)
