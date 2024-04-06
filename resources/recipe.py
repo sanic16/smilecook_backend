@@ -31,7 +31,7 @@ class RecipeListResource(Resource):
         recipe.user_id = current_user         
         recipe.save()
 
-        return recipe_schema.dump(recipe), HTTPStatus.CREATED
+        return {}, HTTPStatus.CREATED
 
 
 class RecipeResource(Resource):
